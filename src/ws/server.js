@@ -1,5 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws';
 
+const MAX_BUFFERED_AMOUNT = 1024 * 1024;
+
 function sendJson(socket, payload) {
     if (socket.readyState !== WebSocket.OPEN) return;
     socket.send(JSON.stringify(payload));
@@ -8,6 +10,11 @@ function sendJson(socket, payload) {
 function broadcast(wss, payload) {
     for (const client of wss.clients) {
         if (client.readyState !== WebSocket.OPEN) continue;
+
+        if (client.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+            client.terminate();
+            continue;
+        }
 
         client.send(JSON.stringify(payload));
     }
