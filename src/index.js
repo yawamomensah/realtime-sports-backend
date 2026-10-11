@@ -2,6 +2,7 @@ import express from 'express';
 import { matchRouter } from './routes/matches.js';
 import http from 'http';
 import { attachWebsocketServer } from './ws/server.js';
+import { securityMiddleware } from '../arcjet.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +17,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Sports Engine Active');
 });
+
+app.use(securityMiddleware());
 
 app.use('/matches', matchRouter);
 const { broadcastMatchCreated } = attachWebsocketServer(server);
