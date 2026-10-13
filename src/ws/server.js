@@ -54,7 +54,11 @@ function broadcastToMatch(matchId, payload) {
     const message = JSON.stringify(payload);
 
     for (const client of subscribers) {
-        if (client.readyState === WebSocket.OPEN)
+        if (client.readyState !== WebSocket.OPEN) continue;
+        if (client.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+            client.terminate();
+            continue;
+        }
             client.send(message);
     }
 }
