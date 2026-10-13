@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "module": "nodenext",
-    "target": "esnext",
-    "checkJs": true,
-    "moduleResolution": "nodenext"
-  },
-  "exclude": ["node_modules"]
-}

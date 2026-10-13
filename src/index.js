@@ -3,6 +3,7 @@ import { matchRouter } from './routes/matches.js';
 import http from 'http';
 import { attachWebsocketServer } from './ws/server.js';
 import { securityMiddleware } from '../arcjet.js';
+import { commentaryRouter } from './routes/commentary.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -21,13 +22,27 @@ app.get('/', (req, res) => {
 app.use(securityMiddleware());
 
 app.use('/matches', matchRouter);
-const { broadcastMatchCreated } = attachWebsocketServer(server);
+app.use('/matches/:id/commentary', commentaryRouter);
+
+const { broadcastMatchCreated, broadcastCommentary } = attachWebsocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastCommentary = broadcastCommentary; 
 
 
 server.listen(PORT, HOST, () => {
-  const baseUrl = HOST === '0.0.0.0' ? `http://localhost:${PORT}` : `http://${HOST}:${PORT}`;
+  const httpServerUrl = HOST === '0.0.0.0' ? `http://localhost:${PORT}` : `http://${HOST}:${PORT}`;
+  console.log(`HTTP Server is running on ${httpServerUrl}`);
 
-  console.log(`Server running at ${baseUrl}`);
-  console.log(`WebSocket Server is running on ${baseUrl.replace('http', 'ws')}/ws`);
+  const host = process.env.PROJECT_HOST?.replace("https://", "");
+  // Ensure we have a host before logging the WebSocket URL
+  if (host) {
+    // We construct the wss url for the client, which will be different from the
+    // local ws url, and does not need the port.
+    const wsUrl = `wss://${host}/ws`;
+    console.log(`WebSocket Server is running on ${wsUrl}`);
+  } else {
+    // Fallback for local development if PROJECT_HOST is not set
+    const wsUrl = `ws://localhost:${PORT}/ws`;
+    console.log(`WebSocket Server is running on ${wsUrl}`);
+  }
 });

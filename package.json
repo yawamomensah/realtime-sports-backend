@@ -2,6 +2,9 @@
   "name": "realtime-sports-engine",
   "version": "1.0.0",
   "main": "index.js",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "dev": "tsx --watch src/index.js",
     "start": "node src/index.js",
